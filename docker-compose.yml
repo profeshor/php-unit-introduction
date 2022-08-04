@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: php-unit-test-mysql
+    volumes:
+      - ./mysql-dump:/docker-entrypoint-initdb.d
+    ports:
+    - "3306:3306"
+    environment:
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: testdb
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+
+  web:
+    image: php:7.3.16-apache
+    domainname: unit-test.test
+    container_name: unit-test.test
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    links:
+      - db
+    volumes:
+      - .:/var/www/html/
+    depends_on:
+      - db
+    environment:
+      - XDEBUG_MODE=coverage
